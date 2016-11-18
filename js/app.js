@@ -42,6 +42,8 @@ var clientinfo={
 	//TODO understand lat, long
 };
 
+var obj = {};
+
 function changeDomElement(id, type, value){
 	if (type == 'text'){
 		$("#"+id).text(value);
@@ -59,4 +61,19 @@ socket.on('initial-changes', function (data) {
 	data.forEach(function (d) {
 		changeDomElement(d.id, d.type, d.value);
 	})
+});
+
+
+socket.on('grouping-info', function (groupingdata) {
+	for (var a = 0; a < groupingdata.length; a++) {
+		var initfield = groupingdata[a].id.toString();
+		$('#'+ initfield).mouseenter(function(){
+					obj[initfield] = new Date().getTime();
+				})
+				.mouseleave(function(){
+					var stopTime = new Date().getTime();
+					var duration = stopTime - obj[initfield];
+					socket.emit('key-event', {eventtype: 'hover', id:initfield, messure:duration});
+				});
+	}
 });
