@@ -83,7 +83,7 @@ console.log(getCookie('tera-cookie'));
 //create cookie if not exists
 if (getCookie('tera-cookie') === undefined){
 	createCookie("tera-cookie", guid(), 7);
-};
+}
 
 //connect to analytics server and send initial data about client
 var socket = io.connect( 'localhost:8883');
@@ -99,14 +99,23 @@ socket.on('initial-changes', function (data) {
 
 socket.on('grouping-info', function (groupingdata) {
 	for (var a = 0; a < groupingdata.length; a++) {
-		var initfield = groupingdata[a].id.toString();
+		console.log(groupingdata[a]);
+		var meas = groupingdata[a].goal_measure;
+		var cid = groupingdata[a].change_id;
+		var ctype = groupingdata[a].change_type;
+		var cvalue = groupingdata[a].change_value;
+		var initfield = groupingdata[a].goal_id.toString();
 		$('#'+ initfield).mouseenter(function(){
 					obj[initfield] = new Date().getTime();
 				})
 				.mouseleave(function(){
 					var stopTime = new Date().getTime();
 					var duration = stopTime - obj[initfield];
-					socket.emit('key-event', {eventtype: 'hover', id:initfield, messure:duration});
+					console.log((duration/1000) % 60);
+					console.log(meas/10);
+					if ((duration/1000) % 60 >= meas/10){
+						socket.emit('key-event', {eventtype: 'hover', id:initfield, measure:duration, change_id:cid, change_type:ctype, change_value:cvalue});
+					}
 				});
 	}
 });
