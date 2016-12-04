@@ -42,6 +42,33 @@ var clientinfo={
 	//TODO understand lat, long
 };
 
+function createCookie(name,value,days) {
+	if (days) {
+		var date = new Date();
+		date.setTime(date.getTime()+(days*24*60*60*1000));
+		var expires = "; expires="+date.toGMTString();
+	}
+	else var expires = "";
+	document.cookie = name+"="+value+expires+"; path=/";
+	console.log("Created Cookie")
+}
+
+function guid() {
+	function s4() {
+		return Math.floor((1 + Math.random()) * 0x10000)
+				.toString(16)
+				.substring(1);
+	}
+	return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+			s4() + '-' + s4() + s4() + s4();
+}
+
+function getCookie(name) {
+	var value = "; " + document.cookie;
+	var parts = value.split("; " + name + "=");
+	if (parts.length == 2) return parts.pop().split(";").shift();
+}
+
 var obj = {};
 
 function changeDomElement(id, type, value){
@@ -52,9 +79,15 @@ function changeDomElement(id, type, value){
 	}
 }
 
+console.log(getCookie('tera-cookie'));
+//create cookie if not exists
+if (getCookie('tera-cookie') === undefined){
+	createCookie("tera-cookie", guid(), 7);
+};
+
 //connect to analytics server and send initial data about client
 var socket = io.connect( 'localhost:8883');
-console.log(socket);
+
 socket.emit('clientdata', clientinfo);
 
 socket.on('initial-changes', function (data) {
